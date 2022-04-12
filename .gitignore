@@ -1,0 +1,48 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.pkl
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+*output/
+/temp
+*log/
+bazel-*
+*.DS_Store
+.DS_Store
+nohup.out
+
+# IDEA Editor
+.idea/
+
+# SSL certificate files
+*.pem
+
+# Temporary files
+*.swp
+
+# local generated code files
+*.pyc
+*.pyi
+
+# vscode
+.vscode/
+
+# temporary files in all dir
+*tmp*
+
+# all sorts of coverage files
+coverage.*
+
+# in case use go vendor
+vendor/
+
+# original code from the book
+.wacig_code_1.2/
