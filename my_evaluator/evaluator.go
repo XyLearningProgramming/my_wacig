@@ -17,6 +17,10 @@ func Eval(node my_ast.Node, env *my_object.Environment) my_object.Object {
 		return &my_object.ReturnValue{
 			Value: Eval(node.Value, env),
 		}
+	case *my_ast.BreakStatement:
+		return BREAK_ERROR
+	case *my_ast.ContinueStatement:
+		return CONTINUE_ERROR
 	case *my_ast.LetStatement:
 		val := Eval(node.Value, env)
 		if isError(val) {
@@ -77,6 +81,12 @@ func Eval(node my_ast.Node, env *my_object.Environment) my_object.Object {
 		return evalIndexExpression(left, node, env)
 	case *my_ast.HashExpression:
 		return evalHashExpression(node, env)
+	case *my_ast.ForExpression:
+		return evalForloop(node, env)
+	case *my_ast.WhileExpression:
+		return evalWhileLoop(node, env)
+	case *my_ast.DoWhileExpression:
+		return evalDoWhileLoop(node, env)
 	}
 	return newError("unknown node type: %s", node.String())
 }

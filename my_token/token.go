@@ -13,15 +13,17 @@ const (
 	STRING = "STRING"
 
 	// Operators
-	ASSIGN   = "="
+	REASSIGN = "="
 	PLUS     = "+"
 	MINUS    = "-"
 	BANG     = "!"
 	ASTERISK = "*"
 	SLASH    = "/"
 
-	LT = "<"
-	GT = ">"
+	LT  = "<"
+	GT  = ">"
+	LTE = "<="
+	GTE = ">="
 
 	EQ     = "=="
 	NOT_EQ = "!="
@@ -46,6 +48,11 @@ const (
 	IF       = "IF"
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
+	DO       = "DO"
+	WHILE    = "WHILE"
+	FOR      = "FOR"
+	BREAK    = "BREAK"
+	CONTINUE = "CONTINUE"
 )
 
 type Token struct {
@@ -54,13 +61,18 @@ type Token struct {
 }
 
 var keywords = map[string]TokenType{
-	"fn":     FUNCTION,
-	"let":    LET,
-	"true":   TRUE,
-	"false":  FALSE,
-	"if":     IF,
-	"else":   ELSE,
-	"return": RETURN,
+	"fn":       FUNCTION,
+	"let":      LET,
+	"true":     TRUE,
+	"false":    FALSE,
+	"if":       IF,
+	"else":     ELSE,
+	"return":   RETURN,
+	"do":       DO,
+	"while":    WHILE,
+	"for":      FOR,
+	"break":    BREAK,
+	"continue": CONTINUE,
 }
 
 func LookupIdent(ident string) TokenType {
@@ -78,6 +90,11 @@ var kwreversed = map[TokenType]string{
 	IF:       "if",
 	ELSE:     "else",
 	RETURN:   "return",
+	DO:       "do",
+	WHILE:    "while",
+	FOR:      "for",
+	BREAK:    "break",
+	CONTINUE: "continue",
 }
 
 func LookupKeywords(t TokenType) string {

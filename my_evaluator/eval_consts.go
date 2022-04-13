@@ -12,5 +12,7 @@ var (
 	TRUE_AS_ONE_FL   = &my_object.Float{Value: 1}
 	FALSE_AS_ZERO_FL = &my_object.Float{Value: 0}
 	NULL             = &my_object.Null{}
+	BREAK_ERROR = &my_object.Error{Message: "break outside loop"}
+	CONTINUE_ERROR =  &my_object.Error{Message: "continue outside loop"}
 	EMPTY_ARRAY = &my_object.Array{Elements:  []my_object.Object{}}
 )

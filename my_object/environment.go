@@ -23,3 +23,15 @@ func (e *Environment) Set(name string, value Object) Object {
 	e.values[name] = value
 	return value
 }
+
+func (e *Environment) Reassign(name string, value Object) (Object, bool) {
+	// inner to outer
+	if _, ok := e.values[name]; ok {
+		e.values[name] = value
+		return value, true
+	}
+	if e.outie != nil {
+		return e.outie.Reassign(name, value)
+	}
+	return value, false
+}

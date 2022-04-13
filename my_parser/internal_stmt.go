@@ -12,6 +12,10 @@ func (p *Parser) parseStatement() my_ast.Statement {
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
+	case token.BREAK:
+		return p.parseBreakStatement()
+	case token.CONTINUE:
+		return p.parseContinueStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -29,8 +33,8 @@ func (p *Parser) parseLetStatement() *my_ast.LetStatement {
 	stmt.Ident = &my_ast.Identifier{
 		Value: p.curToken.Literal,
 	}
-	if !p.isPeekToken(token.ASSIGN) {
-		p.appendTokenError(token.ASSIGN, p.peekToken)
+	if !p.isPeekToken(token.REASSIGN) {
+		p.appendTokenError(token.REASSIGN, p.peekToken)
 		return nil
 	}
 	p.nextToken()
@@ -66,7 +70,7 @@ func (p *Parser) parseExpressionStatement() *my_ast.ExpressionStatement {
 	return stmt
 }
 
-// parseBlockStatement: only called by parsingIfExpression()
+// parseBlockStatement: called by if or loop expression
 func (p *Parser) parseBlockStatement() *my_ast.BlockStatement {
 	if !p.isCurToken(token.LBRACE) {
 		p.appendTokenError(token.LBRACE, p.curToken)
@@ -78,6 +82,15 @@ func (p *Parser) parseBlockStatement() *my_ast.BlockStatement {
 		bs.Statements = append(bs.Statements, p.parseStatement())
 		p.nextToken()
 	}
-	// TODO: what if an empty block statement?
 	return bs
+}
+
+func (p *Parser) parseBreakStatement() *my_ast.BreakStatement {
+	p.nextToken()
+	return &my_ast.BreakStatement{}
+}
+
+func (p *Parser) parseContinueStatement() *my_ast.ContinueStatement {
+	p.nextToken()
+	return &my_ast.ContinueStatement{}
 }

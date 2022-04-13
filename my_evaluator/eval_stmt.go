@@ -25,8 +25,13 @@ func evalBlockStatement(stmts []my_ast.Statement, env *my_object.Environment) my
 		result = Eval(stmt, env)
 		// to keep track of return value with its type in the block statement
 		if result != nil {
-			if rt := result.Type(); rt == my_object.ERROR_OBJ || rt == my_object.RETURN_VALUE_OBJ {
+			switch result.Type() {
+			case my_object.ERROR_OBJ:
+				fallthrough
+			case my_object.RETURN_VALUE_OBJ:
 				return result
+			default:
+				continue
 			}
 		}
 	}

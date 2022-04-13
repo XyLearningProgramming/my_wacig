@@ -12,6 +12,7 @@ type PrecedenceLevel int
 const (
 	_ PrecedenceLevel = iota
 	LOWEST
+	REASSIGN    // let a =1; a=2;
 	EQUALS      // ==
 	LESSGREATER // > or <
 	SUM         // +
@@ -34,6 +35,9 @@ var InfixOperatorToPrecedences = map[my_ast.InfixOperator]PrecedenceLevel{
 	my_ast.INOP_CALL:       CALL,
 	my_ast.INOP_INDEX:      INDEX,
 	my_ast.INOP_INDEXCOLON: INDEXCOLON,
+	my_ast.INOP_GTE:        LESSGREATER,
+	my_ast.INOP_LTE:        LESSGREATER,
+	my_ast.INOP_REASSIGN:   REASSIGN,
 }
 
 func tokenPrecedenceLevel(t *token.Token) PrecedenceLevel {
@@ -50,6 +54,9 @@ type (
 )
 
 func (p *Parser) parseExpression(precedence PrecedenceLevel) my_ast.Expression {
+	if precedence == REASSIGN {
+		fmt.Printf("here")
+	}
 	prefixExpr, pok := p.prefixParseFns[p.curToken.Type]
 	if !pok {
 		p.appendExprFuncError(p.curToken, true)
@@ -384,4 +391,113 @@ func (p *Parser) parseHashLiteral() my_ast.Expression {
 		return nil
 	}
 	return hash
+}
+
+func (p *Parser) parseForExpression() my_ast.Expression {
+	p.nextToken()
+	if !p.isCurToken(token.LPAREN) {
+		p.appendTokenError(token.LPAREN, p.curToken)
+		return nil
+	}
+	p.nextToken()
+	forExpression := &my_ast.ForExpression{}
+	if !p.isCurToken(token.SEMICOLON) {
+		forExpression.InitStmt = p.parseStatement()
+		if forExpression.InitStmt == nil {
+			return nil
+		}
+	} else {
+		forExpression.InitStmt = nil
+	}
+	p.nextToken()
+	if !p.isCurToken(token.SEMICOLON) {
+		forExpression.TestExpr = p.parseExpression(LOWEST)
+		if forExpression.TestExpr == nil {
+			return nil
+		}
+		p.nextToken()
+	} else {
+		forExpression.TestExpr = nil
+	}
+	p.nextToken()
+	if !p.isCurToken(token.RPAREN) {
+		forExpression.UpdateStmt = p.parseStatement()
+		if forExpression.UpdateStmt == nil {
+			return nil
+		}
+		p.nextToken()
+	} else {
+		forExpression.UpdateStmt = nil
+	}
+	p.nextToken()
+	forExpression.Body = p.parseBlockStatement()
+	return forExpression
+}
+
+func (p *Parser) parseWhileExression() my_ast.Expression {
+	p.nextToken()
+	if !p.isCurToken(token.LPAREN) {
+		p.appendTokenError(token.LPAREN, p.curToken)
+		return nil
+	}
+	p.nextToken()
+	whileExpr := &my_ast.WhileExpression{}
+	if !p.isCurToken(token.RPAREN) {
+		whileExpr.TestExpr = p.parseExpression(LOWEST)
+		if whileExpr.TestExpr == nil {
+			return nil
+		}
+		p.nextToken()
+	} else {
+		whileExpr.TestExpr = nil
+	}
+	p.nextToken()
+	if !p.isCurToken(token.LBRACE) {
+		p.appendTokenError(token.LBRACE, p.curToken)
+		return nil
+	}
+	whileExpr.Body = p.parseBlockStatement()
+	if whileExpr.Body == nil {
+		return nil
+	}
+	return whileExpr
+}
+
+func (p *Parser) parseDoWhileExpression() my_ast.Expression {
+	p.nextToken()
+	if !p.isCurToken(token.LBRACE) {
+		p.appendTokenError(token.LBRACE, p.curToken)
+		return nil
+	}
+	doWhileExpr := &my_ast.DoWhileExpression{
+		Body: p.parseBlockStatement(),
+	}
+	if doWhileExpr.Body == nil {
+		return nil
+	}
+	if !p.isCurToken(token.RBRACE) {
+		p.appendTokenError(token.RBRACE, p.curToken)
+		return nil
+	}
+	p.nextToken()
+	if !p.isCurToken(token.WHILE) {
+		p.appendTokenError(token.WHILE, p.curToken)
+		return nil
+	}
+	p.nextToken()
+	if !p.isCurToken(token.LPAREN) {
+		p.appendTokenError(token.LPAREN, p.curToken)
+		return nil
+	}
+	p.nextToken()
+	if !p.isCurToken(token.RPAREN) {
+		doWhileExpr.TestExpr = p.parseExpression(LOWEST)
+		if doWhileExpr.TestExpr == nil {
+			return nil
+		}
+		p.nextToken()
+	} else {
+		doWhileExpr.TestExpr = nil
+	}
+	return doWhileExpr
 }

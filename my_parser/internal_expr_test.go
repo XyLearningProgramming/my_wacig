@@ -3,6 +3,7 @@ package my_parser
 import (
 	"monkey/my_ast"
 	lexer "monkey/my_lexer"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -103,7 +104,7 @@ func TestOperatorPrecedence(t *testing.T) {
 		{"!-c", "(!(-c));"},
 		{"-1+2", "((-1)+2);"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 
 func TestBooleanExpression(t *testing.T) {
@@ -111,7 +112,7 @@ func TestBooleanExpression(t *testing.T) {
 		{"return true", "return true;"},
 		{"true + false", "(true+false);"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 
 func TestGroupedExpression(t *testing.T) {
@@ -121,7 +122,7 @@ func TestGroupedExpression(t *testing.T) {
 		{"-(\t5+ \t5)", "(-(5+5));"},
 		{"!(true == true)", "(!(true==true));"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 func TestIfExpression(t *testing.T) {
 	input := "if (x< y) { x} else\n\n{x;return y;}"
@@ -142,7 +143,7 @@ func TestIfExpression(t *testing.T) {
 	assert.Equal(t, "y", is.Alternative.Statements[1].(*my_ast.ReturnStatement).Value.(*my_ast.Identifier).Value)
 }
 
-func testStringedStatements(t *testing.T, tests []TestWithExpect) {
+func testSingleStringedStatements(t *testing.T, tests []TestWithExpect) {
 	for _, test := range tests {
 		l := lexer.New(test.input)
 		p := New(l)
@@ -152,6 +153,22 @@ func testStringedStatements(t *testing.T, tests []TestWithExpect) {
 		assert.NotNil(t, prog.Statements)
 		assert.Equal(t, 1, len(prog.Statements))
 		assert.Equal(t, test.expect, prog.Statements[0].String())
+	}
+}
+
+func testMultipleStringedStatements(t *testing.T, tests []TestWithExpect) {
+	for _, test := range tests {
+		l := lexer.New(test.input)
+		p := New(l)
+		prog := p.Parse()
+		assert.Nil(t, p.Error())
+		assert.NotNil(t, prog)
+		assert.NotNil(t, prog.Statements)
+		sb := &strings.Builder{}
+		for _, stmt := range prog.Statements {
+			sb.WriteString(stmt.String())
+		}
+		assert.Equal(t, test.expect, sb.String())
 	}
 }
 
@@ -176,7 +193,7 @@ func TestParseFunctionExpression(t *testing.T) {
 		{"fn(x,y)\n{x+y;}", "fn(x,y){(x+y);};"},
 		{"fn(x){return x+2}", "fn(x){return (x+2);};"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 
 func TestParseCallExpression(t *testing.T) {
@@ -184,7 +201,7 @@ func TestParseCallExpression(t *testing.T) {
 		{"fn(x,y)\n{x+y;}(1,\ta)", "fn(x,y){(x+y);}(1,a);"},
 		{"add(1,2* 3, 4 + 5,add(1+2))", "add(1,(2*3),(4+5),add((1+2)));"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 
 func TestStringLiteral(t *testing.T) {
@@ -208,7 +225,7 @@ func TestParseArrayExpression(t *testing.T) {
 		{"[1, 2*2, !false]", "[1,(2*2),(!false)];"},
 		{"[1, 2*2, !false] + [1]", "([1,(2*2),(!false)]+[1]);"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 
 func TestParseArrayIndexingExpression(t *testing.T) {
@@ -224,7 +241,7 @@ func TestParseArrayIndexingExpression(t *testing.T) {
 		{"[1][:1:]", "([1][:1:]);"},
 		{"a*[1,2,3,4][b*c]*d", "((a*([1,2,3,4][(b*c)]))*d);"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
 }
 
 func TestParseMapExpression(t *testing.T) {
@@ -232,5 +249,58 @@ func TestParseMapExpression(t *testing.T) {
 		{`{"one": 1, two: 2+1, 3: [1,2,3][:]}`, `{one:1,two:(2+1),3:([1,2,3][:])};`},
 		{"{}", "{};"},
 	}
-	testStringedStatements(t, tests)
+	testSingleStringedStatements(t, tests)
+}
+
+func TestParseForExpression(t *testing.T) {
+	tests := []TestWithExpect{
+		{"for(;;){}", "for(;;){};"},
+		{"for(let y=x+1;y!=2;let y=y+1){y*2}", "for(let y = (x+1);(y!=2);let y = (y+1)){(y*2);};"},
+		{"for(;y!=2;let y=y+1){y*2}", "for(;(y!=2);let y = (y+1)){(y*2);};"},
+		{"for(;;let y=y+1){y*2}", "for(;;let y = (y+1)){(y*2);};"},
+		{"for(;y!=2;){y*2}", "for(;(y!=2);){(y*2);};"},
+	}
+	testSingleStringedStatements(t, tests)
+}
+
+func TestParseWhileExpression(t *testing.T) {
+	tests := []TestWithExpect{
+		{"while(){}", "while(){};"},
+		{"while(){y+2}", "while(){(y+2);};"},
+		{"while(x+1<2){y+2}", "while(((x+1)<2)){(y+2);};"},
+	}
+	testSingleStringedStatements(t, tests)
+}
+
+func TestParseDoWhileExpression(t *testing.T) {
+	tests := []TestWithExpect{
+		{"do{}while()", "do{}while();"},
+		{"do{y+2}while()", "do{(y+2);}while();"},
+		{"do{y+2}while(y<2)", "do{(y+2);}while((y<2));"},
+	}
+	testSingleStringedStatements(t, tests)
+}
+
+func TestParseGTELTEExpression(t *testing.T) {
+	tests := []TestWithExpect{
+		{"a<=1+1", "(a<=(1+1));"},
+		{"a>=2*2", "(a>=(2*2));"},
+		{"a>=2>2", "((a>=2)>2);"},
+	}
+	testSingleStringedStatements(t, tests)
+}
+
+func TestParseReassignExpression(t *testing.T) {
+	tests := []TestWithExpect{
+		{"a=a+1", "(a=(a+1));"},
+	}
+	testSingleStringedStatements(t, tests)
+}
+
+func TestParseBreakContinueStatement(t *testing.T) {
+	tests := []TestWithExpect{
+		{"break;1+2", "break;(1+2);"},
+		{"1+1;continue;1+2", "(1+1);continue;(1+2);"},
+	}
+	testMultipleStringedStatements(t, tests)
 }

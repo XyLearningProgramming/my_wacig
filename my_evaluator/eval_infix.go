@@ -6,6 +6,10 @@ import (
 )
 
 func evalInfixNode(node *my_ast.InfixExpression, env *my_object.Environment) my_object.Object {
+	if node.Operator == "=" {
+		return evalReassignInfix(node, env)
+	}
+
 	leftObj := Eval(node.Left, env)
 	if isError(leftObj) {
 		return leftObj
@@ -63,6 +67,10 @@ func evalInfixNode(node *my_ast.InfixExpression, env *my_object.Environment) my_
 			case "!=":
 				fallthrough
 			case ">":
+				fallthrough
+			case ">=":
+				fallthrough
+			case "<=":
 				return FALSE
 			case "==":
 				return TRUE
@@ -106,6 +114,10 @@ func evalIntegerInfixExpression(
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
+	case "<=":
+		return nativeBoolToBooleanObject(leftVal <= rightVal)
+	case ">=":
+		return nativeBoolToBooleanObject(leftVal >= rightVal)
 	default:
 		return newError("unknown operator: %s%s%s", left.Type(), operator, right.Type())
 	}
@@ -133,7 +145,31 @@ func evalFloatInfixExpression(
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
+	case ">=":
+		return nativeBoolToBooleanObject(leftVal >= rightVal)
+	case "<=":
+		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	default:
 		return newError("unknown operator: %s%s%s", left.Type(), operator, right.Type())
 	}
+}
+
+func evalReassignInfix(node *my_ast.InfixExpression, env *my_object.Environment) my_object.Object {
+	ident, iok := node.Left.(*my_ast.Identifier)
+	if !iok {
+		return newError("cannot assign to values other than identifier: got=%s", node.Left.String())
+	}
+	_, eok := env.Get(ident.Value)
+	if !eok {
+		return newError("cannot assign to undefined identifier")
+	}
+	value := Eval(node.Right, env)
+	if isError(value) {
+		return value
+	}
+	reassigned, rok := env.Reassign(ident.Value, value)
+	if !rok {
+		return newError("cannot assign to undefined identifier")
+	}
+	return reassigned
 }

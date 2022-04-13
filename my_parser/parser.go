@@ -26,7 +26,7 @@ func New(l *lexer.Lexer) *Parser {
 		infixParseFns:  make(map[token.TokenType]infixParseFn),
 	}
 
-	// NOTE: Pratt parsing: link each type of tokens to one or multiple parsing functions
+	// Pratt parsing: link each type of tokens to one or multiple parsing functions
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.FLOAT, p.parseFloatLiteral)
@@ -40,6 +40,9 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.STRING, p.parseStringExpression)
 	p.registerPrefix(token.LBRACKET, p.parseArrayExpression)
 	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
+	p.registerPrefix(token.FOR, p.parseForExpression)
+	p.registerPrefix(token.WHILE, p.parseWhileExression)
+	p.registerPrefix(token.DO, p.parseDoWhileExpression)
 
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -51,6 +54,9 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.LTE, p.parseInfixExpression)
+	p.registerInfix(token.GTE, p.parseInfixExpression)
+	p.registerInfix(token.REASSIGN, p.parseInfixExpression)
 
 	// lexer.NextToken() will continue to produce EOF if finished without error
 	p.nextToken()

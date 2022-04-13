@@ -79,7 +79,7 @@ func (l *LetStatement) String() string {
 	sb.WriteString(NodeStringTokenSpace)
 	sb.WriteString(l.Ident.Value)
 	sb.WriteString(NodeStringTokenSpace)
-	sb.WriteString(token.ASSIGN)
+	sb.WriteString(token.REASSIGN)
 	sb.WriteString(NodeStringTokenSpace)
 	sb.WriteString(l.Value.String())
 	sb.WriteString(NodeStringSemiColon)
@@ -208,6 +208,9 @@ const (
 	INOP_CALL       InfixOperator = token.LPAREN
 	INOP_INDEX      InfixOperator = token.LBRACKET
 	INOP_INDEXCOLON InfixOperator = token.COLON
+	INOP_GTE        InfixOperator = token.GTE
+	INOP_LTE        InfixOperator = token.LTE
+	INOP_REASSIGN   InfixOperator = token.REASSIGN
 )
 
 type InfixExpression struct {
@@ -428,3 +431,113 @@ func (he *HashExpression) String() string {
 }
 
 func (he *HashExpression) expressionNode() {}
+
+type ForExpression struct {
+	InitStmt   Statement
+	TestExpr   Expression
+	UpdateStmt Statement
+	Body       *BlockStatement
+}
+
+func (fe *ForExpression) DebugString() string { return fe.String() }
+
+func (fe *ForExpression) String() string {
+	sb := &strings.Builder{}
+	sb.WriteString("for(")
+	if fe.InitStmt != nil {
+		sb.WriteString(fe.InitStmt.String())
+	} else {
+		sb.WriteRune(';')
+	}
+	if fe.TestExpr != nil {
+		sb.WriteString(fe.TestExpr.String())
+	}
+	sb.WriteRune(';')
+	if fe.UpdateStmt != nil {
+		sb.WriteString(fe.UpdateStmt.String())
+	} else {
+		sb.WriteRune(';')
+	}
+	trimmed := strings.TrimSuffix(sb.String(), ";")
+	sb.Reset()
+	sb.WriteString(trimmed)
+	sb.WriteRune(')')
+	if fe.Body != nil {
+		sb.WriteString(fe.Body.String())
+	} else {
+		sb.WriteRune('{')
+		sb.WriteRune('}')
+	}
+	return sb.String()
+}
+
+func (fe *ForExpression) expressionNode() {}
+
+type DoWhileExpression struct {
+	TestExpr Expression
+	Body     *BlockStatement
+}
+
+func (dw *DoWhileExpression) DebugString() string { return dw.String() }
+
+func (dw *DoWhileExpression) String() string {
+	sb := &strings.Builder{}
+	sb.WriteString("do")
+	if dw.Body != nil {
+		sb.WriteString(dw.Body.String())
+	} else {
+		sb.WriteRune('{')
+		sb.WriteRune('}')
+	}
+	sb.WriteString("while(")
+	if dw.TestExpr != nil {
+		sb.WriteString(dw.TestExpr.String())
+	}
+	sb.WriteRune(')')
+	return sb.String()
+}
+
+func (dw *DoWhileExpression) expressionNode() {}
+
+type WhileExpression struct {
+	TestExpr Expression
+	Body     *BlockStatement
+}
+
+func (w *WhileExpression) DebugString() string { return w.String() }
+
+func (w *WhileExpression) String() string {
+	sb := &strings.Builder{}
+	sb.WriteString("while")
+	sb.WriteRune('(')
+	if w.TestExpr != nil {
+		sb.WriteString(w.TestExpr.String())
+	}
+	sb.WriteRune(')')
+	if w.Body != nil {
+		sb.WriteString(w.Body.String())
+	} else {
+		sb.WriteRune('{')
+		sb.WriteRune('}')
+	}
+
+	return sb.String()
+}
+
+func (w *WhileExpression) expressionNode() {}
+
+type BreakStatement struct{}
+
+func (b *BreakStatement) DebugString() string { return b.String() }
+
+func (b *BreakStatement) String() string { return "break;" }
+
+func (b *BreakStatement) statementNode() {}
+
+type ContinueStatement struct{}
+
+func (c *ContinueStatement) DebugString() string { return c.String() }
+
+func (c *ContinueStatement) String() string { return "continue;" }
+
+func (c *ContinueStatement) statementNode() {}

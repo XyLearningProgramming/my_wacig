@@ -6,15 +6,16 @@ import (
 )
 
 func evalIfExpression(ie *my_ast.IfExpression, env *my_object.Environment) my_object.Object {
-	cond := Eval(ie.Condition, env)
+	enclosed := my_object.NewEnclosedEnvironment(env)
+	cond := Eval(ie.Condition, enclosed)
 	if isError(cond) {
 		return cond
 	}
 	if isTruthy(cond) {
-		return Eval(ie.Consequence, env)
+		return Eval(ie.Consequence, enclosed)
 	}
 	if ie.Alternative != nil {
-		return Eval(ie.Alternative, env)
+		return Eval(ie.Alternative, enclosed)
 	}
 	return NULL
 }

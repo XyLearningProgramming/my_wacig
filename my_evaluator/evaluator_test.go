@@ -255,6 +255,65 @@ func TestHashIndexExpression(t *testing.T) {
 	testCaseWithStruct(t, tests)
 }
 
+func TestForLoopExpression(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"for(;false;){}", "", nullType},
+		{"let b = 1;for(let a=1;a<3; a = a+1){let b = a; return b;}", 2, intType},
+		{"let b = 1;for(let a=1;a<3;){a = a+1; b= a; b}", 3, intType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
+func TestWhileLoopExpression(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"while(false){}", "", nullType},
+		{"let a = 1;while(a<3){a = a+1; a;}", 3, intType},
+		{"let a = 1;while(a<3){a = a+1; a;}", 3, intType},
+		{"let a = 1;while(a==1){let a = 2; break;};a;", 1, intType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
+func TestDoWhileLoopExpression(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"do{1}while(false)", 1, intType},
+		{"let a=1;do{a=a+1; a;}while(a<3)", 3, intType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
+func TestGTELTEExpression(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"1>=2", false, boolType},
+		{"1<=0.9", false, boolType},
+		{"1<=0.9<=0.1", true, boolType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
+func TestReassignExpression(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"let a= true; a=2; a", 2, intType},
+		{"let a= true; a=2;", 2, intType},
+		{"a=2", "cannot assign to undefined identifier", errType},
+		{"let a= true; a>=false", true, boolType},
+		{"let a = 1; do{let a= 2}while(false);a=3;a;", 3, intType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
+func TestBreakContinueStatements(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"break", "break outside loop", errType},
+		{"continue", "continue outside loop", errType},
+		{"for(;true;){1;break;}", "", nullType},
+		{"let a = 1;while(a<3){a=a+1;break;};a;", 2, intType},
+		{"let a = 1;while(a<3){a=a+1;continue;}", "", nullType},
+		{"let a = 1;while(a<3){a=a+1;continue;};a;", 3, intType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
 func testCaseWithStruct(t *testing.T, tests []*testCaseTyped) {
 	for _, c := range tests {
 		evaluated := testEval(t, c.input)

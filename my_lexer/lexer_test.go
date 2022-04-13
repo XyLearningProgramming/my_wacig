@@ -26,6 +26,13 @@ if (5 < 10) {
 
 10 == 10;
 10 != 9;
+while(){};
+do{}while();
+for(;;){};
+a<=1;
+a>=1;
+break;
+continue;
 `
 
 	tests := []struct {
@@ -34,17 +41,17 @@ if (5 < 10) {
 	}{
 		{token.LET, "let"},
 		{token.IDENT, "five"},
-		{token.ASSIGN, "="},
+		{token.REASSIGN, "="},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "ten"},
-		{token.ASSIGN, "="},
+		{token.REASSIGN, "="},
 		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "add"},
-		{token.ASSIGN, "="},
+		{token.REASSIGN, "="},
 		{token.FUNCTION, "fn"},
 		{token.LPAREN, "("},
 		{token.IDENT, "x"},
@@ -60,7 +67,7 @@ if (5 < 10) {
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "result"},
-		{token.ASSIGN, "="},
+		{token.REASSIGN, "="},
 		{token.IDENT, "add"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
@@ -104,6 +111,42 @@ if (5 < 10) {
 		{token.INT, "10"},
 		{token.NOT_EQ, "!="},
 		{token.INT, "9"},
+		{token.SEMICOLON, ";"},
+		//while(){};
+		{token.WHILE, "while"},
+		{token.LPAREN, "("},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		// do{}while();
+		{token.DO, "do"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+		{token.WHILE, "while"},
+		{token.LPAREN, "("},
+		{token.RPAREN, ")"},
+		{token.SEMICOLON, ";"},
+		// for(;;){};
+		{token.FOR, "for"},
+		{token.LPAREN, "("},
+		{token.SEMICOLON, ";"},
+		{token.SEMICOLON, ";"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		{token.IDENT, "a"},
+		{token.LTE, "<="},
+		{token.INT, "1"},
+		{token.SEMICOLON, ";"},
+		{token.IDENT, "a"},
+		{token.GTE, ">="},
+		{token.INT, "1"},
+		{token.SEMICOLON, ";"},
+		{token.BREAK, "break"},
+		{token.SEMICOLON, ";"},
+		{token.CONTINUE, "continue"},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
