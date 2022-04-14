@@ -1,5 +1,7 @@
 # Writing a compiler in go - My improved version
 
+[![Go](https://github.com/XyLearningProgramming/my_wacig/actions/workflows/build_test.yml/badge.svg)](https://github.com/XyLearningProgramming/my_wacig/actions/workflows/build_test.yml)
+
 ## What is repo for?
 
 This repo is my version of implementing the compiler of the "monkey" language described in the book "writing a compiler in go" by Thorsten Ball.
