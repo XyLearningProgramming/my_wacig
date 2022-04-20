@@ -14,6 +14,7 @@ func TestMake(t *testing.T) {
 		expected []byte
 	}{
 		{OpConstant, []int{math.MaxUint16 - 1}, []byte{byte(OpConstant), 255, 254}},
+		{OpAdd, []int{}, []byte{byte(OpAdd)}},
 	}
 	for _, test := range tests {
 		instruction := Make(test.op, test.operands...)

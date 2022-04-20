@@ -13,6 +13,7 @@ type Definition struct {
 var definitions = map[Opcode]*Definition{
 	// OpConstant: 2 bytes operands meaning holding 2**(16) max constants
 	OpConstant: {"OpConstant", []int{2}},
+	OpAdd:      {"OpAdd", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {

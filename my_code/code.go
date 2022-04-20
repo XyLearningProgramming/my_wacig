@@ -13,6 +13,7 @@ type Opcode byte
 const (
 	// OpConstant: retrieves the constant using operand as index and push it onto the stack
 	OpConstant Opcode = iota
+	OpAdd
 )
 
 func (ins Instructions) String() string {
@@ -61,6 +62,8 @@ func fmtIns(def *Definition, operands []int) string {
 		return fmt.Sprintf("ERROR: operand read length %d does not match defined %d", len(operands), operandCount)
 	}
 	switch operandCount {
+	case 0:
+		return def.Name
 	case 1:
 		return fmt.Sprintf("%s %d", def.Name, operands[0])
 	}

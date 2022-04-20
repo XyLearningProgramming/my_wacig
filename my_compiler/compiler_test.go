@@ -19,11 +19,13 @@ type compilerTestCase struct {
 
 func TestIntegerArithmetic(t *testing.T) {
 	tests := []*compilerTestCase{
-		{"1+2",
+		{
+			"1+2",
 			[]interface{}{1, 2},
 			[]my_code.Instructions{
 				my_code.Make(my_code.OpConstant, 0),
 				my_code.Make(my_code.OpConstant, 1),
+				my_code.Make(my_code.OpAdd),
 			},
 		},
 	}
@@ -52,7 +54,7 @@ func testInstructions(t *testing.T, expected []my_code.Instructions, actual my_c
 	}
 	assert.EqualValues(t, len(concatted), len(actual), "wrong instruction length,\nwant:\n%s\ngot:%s\n", concatted, actual)
 	for idx, ins := range concatted {
-		assert.EqualValues(t, ins, actual[idx], "wrong instruction at %d,\nwant:\n%s\ngot:%s\n", idx, concatted, actual)
+		assert.EqualValues(t, ins, actual[idx], "wrong instruction at %d,\nwant:\n%s\ngot:\n%s\n", idx, concatted, actual)
 	}
 }
 

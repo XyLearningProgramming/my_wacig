@@ -1,6 +1,7 @@
 package my_compiler
 
 import (
+	"fmt"
 	"monkey/my_ast"
 	"monkey/my_code"
 	"monkey/my_object"
@@ -25,6 +26,7 @@ func New() *Compiler {
 
 func (c *Compiler) Compile(node my_ast.Node) error {
 	switch node := node.(type) {
+	// statements
 	case *my_ast.Program:
 		for _, stmt := range node.Statements {
 			err := c.Compile(stmt)
@@ -37,15 +39,22 @@ func (c *Compiler) Compile(node my_ast.Node) error {
 		if err != nil {
 			return err
 		}
+	// expressions
 	case *my_ast.InfixExpression:
 		err := c.Compile(node.Left)
 		if err != nil {
 			return err
 		}
-		// TODO: compile infix op?
 		err = c.Compile(node.Right)
 		if err != nil {
 			return err
+		}
+		// TODO: compile infix op?
+		switch node.Operator {
+		case "+":
+			c.emit(my_code.OpAdd)
+		default:
+			return fmt.Errorf("unknown operator %s", node.Operator)
 		}
 	case *my_ast.Integer:
 		c.emit(

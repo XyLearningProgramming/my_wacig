@@ -12,10 +12,12 @@ func TestDisassembleString(t *testing.T) {
 		Make(OpConstant, 1),
 		Make(OpConstant, 2),
 		Make(OpConstant, math.MaxUint16),
+		Make(OpAdd),
 	}
 	expected := `0000 OpConstant 1
 0003 OpConstant 2
 0006 OpConstant 65535
+0009 OpAdd
 `
 	assert.EqualValues(t, expected, Concat(instructions).String())
 }
