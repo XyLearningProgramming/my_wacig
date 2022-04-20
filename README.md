@@ -1,6 +1,7 @@
 # Writing a compiler in go - My improved version
 
 [![Go](https://github.com/XyLearningProgramming/my_wacig/actions/workflows/build_test.yml/badge.svg)](https://github.com/XyLearningProgramming/my_wacig/actions/workflows/build_test.yml)
+[![codecov](https://codecov.io/gh/XyLearningProgramming/my_wacig/branch/main/graph/badge.svg?token=8OTMPV89C1)](https://codecov.io/gh/XyLearningProgramming/my_wacig)
 
 ## What is repo for?
 
