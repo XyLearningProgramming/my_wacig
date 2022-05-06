@@ -5,7 +5,7 @@ import (
 	"monkey/my_object"
 )
 
-func newError(format string, a ...interface{}) *my_object.Error {
+func newError(format string, a ...any) *my_object.Error {
 	return &my_object.Error{Message: fmt.Sprintf(format, a...)}
 }
 

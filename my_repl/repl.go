@@ -58,7 +58,7 @@ func compiler_call(line string, out io.Writer) {
 		printParserErrors(out, []string{err.Error()})
 		return
 	}
-	stackTop := virtualMachine.StackTop()
+	stackTop := virtualMachine.LastPoppedStackItem()
 	io.WriteString(out, "\n")
 	io.WriteString(out, stackTop.String())
 }

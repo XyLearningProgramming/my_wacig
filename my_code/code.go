@@ -14,6 +14,18 @@ const (
 	// OpConstant: retrieves the constant using operand as index and push it onto the stack
 	OpConstant Opcode = iota
 	OpAdd
+	OpPop
+	OpSub
+	OpMul
+	OpDiv
+	OpTrue
+	OpFalse
+	OpEqual
+	OpNotEqual
+	OpGT    // greater than
+	OpGTE   // greater than or equal to
+	OpMinus // prefix minus
+	OpBang  // prefix bang
 )
 
 func (ins Instructions) String() string {

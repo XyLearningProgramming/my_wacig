@@ -23,6 +23,9 @@ It is based on my version of the [first part](https://github.com/XyLearningProgr
 
 ### Improvements based on the part II (TODO)
 
+- vm supports arithmetic operators among `boolean`, `integer`, `float` constants
+- TODO: vm supports all infix operators (`=,:,;`)
+
 ### Improvements based on the part I
 
 - `float` type

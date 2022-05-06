@@ -39,13 +39,36 @@ func (c *Compiler) Compile(node my_ast.Node) error {
 		if err != nil {
 			return err
 		}
+		c.emit(my_code.OpPop)
 	// expressions
-	case *my_ast.InfixExpression:
-		err := c.Compile(node.Left)
+	case *my_ast.PrefixExpression:
+		err := c.Compile(node.Right)
 		if err != nil {
 			return err
 		}
-		err = c.Compile(node.Right)
+		switch node.Operator {
+		case "-":
+			c.emit(my_code.OpMinus)
+		case "!":
+			c.emit(my_code.OpBang)
+		default:
+			return fmt.Errorf("unknown prefix operator: %s", node.Operator)
+		}
+	case *my_ast.InfixExpression:
+		var first my_ast.Expression
+		var second my_ast.Expression
+		if isNodeReversed(node.Operator) {
+			first = node.Right
+			second = node.Left
+		} else {
+			first = node.Left
+			second = node.Right
+		}
+		err := c.Compile(first)
+		if err != nil {
+			return err
+		}
+		err = c.Compile(second)
 		if err != nil {
 			return err
 		}
@@ -53,6 +76,24 @@ func (c *Compiler) Compile(node my_ast.Node) error {
 		switch node.Operator {
 		case "+":
 			c.emit(my_code.OpAdd)
+		case "-":
+			c.emit(my_code.OpSub)
+		case "*":
+			c.emit(my_code.OpMul)
+		case "/":
+			c.emit(my_code.OpDiv)
+		case "<":
+			fallthrough
+		case ">":
+			c.emit(my_code.OpGT)
+		case "<=":
+			fallthrough
+		case ">=":
+			c.emit(my_code.OpGTE)
+		case "==":
+			c.emit(my_code.OpEqual)
+		case "!=":
+			c.emit(my_code.OpNotEqual)
 		default:
 			return fmt.Errorf("unknown operator %s", node.Operator)
 		}
@@ -60,6 +101,22 @@ func (c *Compiler) Compile(node my_ast.Node) error {
 		c.emit(
 			my_code.OpConstant,
 			c.addConstant(&my_object.Integer{Value: int64(node.Value)}),
+		)
+	case *my_ast.Float:
+		c.emit(
+			my_code.OpConstant,
+			c.addConstant(&my_object.Float{Value: node.Value}),
+		)
+	case *my_ast.Boolean:
+		if node.Value {
+			c.emit(my_code.OpTrue)
+		} else {
+			c.emit(my_code.OpFalse)
+		}
+	case *my_ast.StringExpression:
+		c.emit(
+			my_code.OpConstant,
+			c.addConstant(&my_object.String{Value: node.Value}),
 		)
 	}
 	return nil
@@ -80,4 +137,15 @@ func (c *Compiler) emit(op my_code.Opcode, operands ...int) (posNewIns int) {
 	ins := my_code.Make(op, operands...)
 	c.instructions = append(c.instructions, ins...)
 	return posNewIns
+}
+
+func isNodeReversed(operator my_ast.InfixOperator) bool {
+	switch operator {
+	case "<=":
+		fallthrough
+	case "<":
+		return true
+	default:
+		return false
+	}
 }

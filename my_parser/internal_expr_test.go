@@ -63,8 +63,8 @@ func TestPrefixExpressionStatement(t *testing.T) {
 func TestInfixExpressionStatement(t *testing.T) {
 	tests := []struct {
 		input     string
-		leftExpr  interface{}
-		rightExpr interface{}
+		leftExpr  any
+		rightExpr any
 		operator  string
 	}{
 		{"5+5", 5, 5, "+"},
