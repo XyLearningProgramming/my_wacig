@@ -14,12 +14,12 @@ import (
 
 type testCase struct {
 	input  string
-	expect interface{}
+	expect any
 }
 
 type testCaseTyped struct {
 	input   string
-	expect  interface{}
+	expect  any
 	refType reflect.Type
 }
 
@@ -190,8 +190,8 @@ func TestBuiltinLenFunction(t *testing.T) {
 
 func TestArrayEvaluation(t *testing.T) {
 	tests := []*testCaseTyped{
-		{"[1, 2*2, 3+3]", []interface{}{1, 4, 6}, arrType},
-		{"[]", []interface{}{}, arrType},
+		{"[1, 2*2, 3+3]", []any{1, 4, 6}, arrType},
+		{"[]", []any{}, arrType},
 	}
 	testCaseWithStruct(t, tests)
 }
@@ -201,22 +201,22 @@ func TestArrayIndexExpression(t *testing.T) {
 		{"[1, 2, 3, 4][0]", 1, intType},
 		{"[1, 2, 3, 4][-1]", 4, intType},
 		{"[1, 2, 3, 4][4]", "index 4 out of array with length 4", errType},
-		{"[1, 2, 3, 4][1:2]", []interface{}{2}, arrType},
-		{"[1, 2, 3, 4][1:3]", []interface{}{2, 3}, arrType},
-		{"[1, 2, 3, 4][2:5]", []interface{}{3, 4}, arrType},
-		{"[1, 2, 3, 4][2:1]", []interface{}{}, arrType},
-		{"[1, 2, 3, 4][0:0]", []interface{}{}, arrType},
-		{"[1, 2, 3, 4][:]", []interface{}{1, 2, 3, 4}, arrType},
-		{"[1, 2, 3, 4][::]", []interface{}{1, 2, 3, 4}, arrType},
+		{"[1, 2, 3, 4][1:2]", []any{2}, arrType},
+		{"[1, 2, 3, 4][1:3]", []any{2, 3}, arrType},
+		{"[1, 2, 3, 4][2:5]", []any{3, 4}, arrType},
+		{"[1, 2, 3, 4][2:1]", []any{}, arrType},
+		{"[1, 2, 3, 4][0:0]", []any{}, arrType},
+		{"[1, 2, 3, 4][:]", []any{1, 2, 3, 4}, arrType},
+		{"[1, 2, 3, 4][::]", []any{1, 2, 3, 4}, arrType},
 		{"[1, 2, 3, 4][]", "array-like indexing with empty expression", errType},
-		{"[1, 2, 3, 4][:5]", []interface{}{1, 2, 3, 4}, arrType},
-		{"[1, 2, 3, 4][::1]", []interface{}{1, 2, 3, 4}, arrType},
-		{"[1, 2, 3, 4][::2]", []interface{}{1, 3}, arrType},
-		{"[1, 2, 3, 4][::5]", []interface{}{1}, arrType},
+		{"[1, 2, 3, 4][:5]", []any{1, 2, 3, 4}, arrType},
+		{"[1, 2, 3, 4][::1]", []any{1, 2, 3, 4}, arrType},
+		{"[1, 2, 3, 4][::2]", []any{1, 3}, arrType},
+		{"[1, 2, 3, 4][::5]", []any{1}, arrType},
 		{"[1, 2, 3, 4][::0]", "array-like indexing expecting non-zero stride", errType},
-		{"[1, 2, 3, 4][::-1]", []interface{}{4, 3, 2, 1}, arrType},
-		{"[1, 2, 3, 4][::-3]", []interface{}{4, 1}, arrType},
-		{"[1, 2, 3, 4][1::-3]", []interface{}{2}, arrType},
+		{"[1, 2, 3, 4][::-1]", []any{4, 3, 2, 1}, arrType},
+		{"[1, 2, 3, 4][::-3]", []any{4, 1}, arrType},
+		{"[1, 2, 3, 4][1::-3]", []any{2}, arrType},
 	}
 	testCaseWithStruct(t, tests)
 }
@@ -324,7 +324,7 @@ func testCaseWithStruct(t *testing.T, tests []*testCaseTyped) {
 	}
 }
 
-func testOneCaseWithStruct(t *testing.T, expect interface{}, expectType reflect.Type, actualValue reflect.Value) {
+func testOneCaseWithStruct(t *testing.T, expect any, expectType reflect.Type, actualValue reflect.Value) {
 	switch expectType {
 	case floatType:
 		assert.EqualValues(t, expect, actualValue.Elem().Field(0).Float())
@@ -339,7 +339,7 @@ func testOneCaseWithStruct(t *testing.T, expect interface{}, expectType reflect.
 	case strType:
 		assert.EqualValues(t, expect, actualValue.Elem().Field(0).String())
 	case arrType:
-		carr, cok := expect.([]interface{})
+		carr, cok := expect.([]any)
 		assert.True(t, cok)
 		// fmt.Printf("carr = %+v: actualValue: %+v\n", carr, actualValue)
 		if len(carr) == 0 {

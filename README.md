@@ -1,5 +1,8 @@
 # Writing a compiler in go - My improved version
 
+[![Go](https://github.com/XyLearningProgramming/my_wacig/actions/workflows/build_test.yml/badge.svg)](https://github.com/XyLearningProgramming/my_wacig/actions/workflows/build_test.yml)
+[![codecov](https://codecov.io/gh/XyLearningProgramming/my_wacig/branch/main/graph/badge.svg?token=8OTMPV89C1)](https://codecov.io/gh/XyLearningProgramming/my_wacig)
+
 ## What is repo for?
 
 This repo is my version of implementing the compiler of the "monkey" language described in the book "writing a compiler in go" by Thorsten Ball.
@@ -19,6 +22,9 @@ It is based on my version of the [first part](https://github.com/XyLearningProgr
 ## Features
 
 ### Improvements based on the part II (TODO)
+
+- vm supports arithmetic operators among `boolean`, `integer`, `float` constants
+- TODO: vm supports all infix operators (`=,:,;`)
 
 ### Improvements based on the part I
 
