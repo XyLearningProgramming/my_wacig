@@ -61,3 +61,5 @@ It is based on my version of the [first part](https://github.com/XyLearningProgr
     let a = 1; do{let a= 2}while(false);a=3;a;
     # output: 3
     ```
+
+- `null` keyword added to express null type

@@ -541,3 +541,13 @@ func (c *ContinueStatement) DebugString() string { return c.String() }
 func (c *ContinueStatement) String() string { return "continue;" }
 
 func (c *ContinueStatement) statementNode() {}
+
+type Null struct{}
+
+var NULL = &Null{}
+
+func (n *Null) DebugString() string { return n.String() }
+
+func (n *Null) String() string { return "null" }
+
+func (n *Null) expressionNode() {}

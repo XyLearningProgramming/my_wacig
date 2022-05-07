@@ -314,6 +314,18 @@ func TestBreakContinueStatements(t *testing.T) {
 	testCaseWithStruct(t, tests)
 }
 
+func TestNullStatements(t *testing.T) {
+	tests := []*testCaseTyped{
+		{"null", "", nullType},
+		{"null==null", true, boolType},
+		{"null!=null;", false, boolType},
+		{"null>null", false, boolType},
+		{"null<=null", true, boolType},
+		{"null+null", "unknown operator: NULL+NULL", errType},
+	}
+	testCaseWithStruct(t, tests)
+}
+
 func testCaseWithStruct(t *testing.T, tests []*testCaseTyped) {
 	for _, c := range tests {
 		evaluated := testEval(t, c.input)

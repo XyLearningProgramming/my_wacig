@@ -53,6 +53,7 @@ const (
 	FOR      = "FOR"
 	BREAK    = "BREAK"
 	CONTINUE = "CONTINUE"
+	NULL     = "NULL"
 )
 
 type Token struct {
@@ -73,6 +74,7 @@ var keywords = map[string]TokenType{
 	"for":      FOR,
 	"break":    BREAK,
 	"continue": CONTINUE,
+	"null":     NULL,
 }
 
 func LookupIdent(ident string) TokenType {
@@ -95,6 +97,7 @@ var kwreversed = map[TokenType]string{
 	FOR:      "for",
 	BREAK:    "break",
 	CONTINUE: "continue",
+	NULL:     "null",
 }
 
 func LookupKeywords(t TokenType) string {

@@ -54,9 +54,6 @@ type (
 )
 
 func (p *Parser) parseExpression(precedence PrecedenceLevel) my_ast.Expression {
-	if precedence == REASSIGN {
-		fmt.Printf("here")
-	}
 	prefixExpr, pok := p.prefixParseFns[p.curToken.Type]
 	if !pok {
 		p.appendExprFuncError(p.curToken, true)
@@ -156,6 +153,7 @@ func (p *Parser) parseIfExpression() my_ast.Expression {
 		return nil
 	}
 	p.nextToken()
+	// xx )
 	ie := &my_ast.IfExpression{Condition: p.parseExpression(LOWEST)}
 	p.nextToken()
 	if !p.isCurToken(token.RPAREN) {
@@ -170,13 +168,16 @@ func (p *Parser) parseIfExpression() my_ast.Expression {
 		p.appendTokenError(token.RBRACE, p.curToken)
 		return nil
 	}
-	p.nextToken()
+	// } else
 	// no "else" token is legal, return immediately
-	if !p.isCurToken(token.ELSE) {
+	if !p.isPeekToken(token.ELSE) {
 		return ie
 	}
+	// else { xx
+	p.nextToken()
 	// parse if alternative as block statement
 	p.nextToken()
+	// { xx
 	ie.Alternative = p.parseBlockStatement()
 	if !p.isCurToken(token.RBRACE) {
 		p.appendTokenError(token.RBRACE, p.curToken)
@@ -500,4 +501,8 @@ func (p *Parser) parseDoWhileExpression() my_ast.Expression {
 		doWhileExpr.TestExpr = nil
 	}
 	return doWhileExpr
+}
+
+func (p *Parser) parseNullLiteral() my_ast.Expression {
+	return my_ast.NULL
 }

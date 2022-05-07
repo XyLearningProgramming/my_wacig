@@ -26,6 +26,9 @@ const (
 	OpGTE   // greater than or equal to
 	OpMinus // prefix minus
 	OpBang  // prefix bang
+	OpJumpNotTruthy
+	OpJump
+	OpNull
 )
 
 func (ins Instructions) String() string {

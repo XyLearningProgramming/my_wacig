@@ -67,11 +67,11 @@ func evalInfixNode(node *my_ast.InfixExpression, env *my_object.Environment) my_
 			case "!=":
 				fallthrough
 			case ">":
-				fallthrough
+				return FALSE
 			case ">=":
 				fallthrough
 			case "<=":
-				return FALSE
+				fallthrough
 			case "==":
 				return TRUE
 			default:
