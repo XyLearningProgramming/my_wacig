@@ -1,0 +1,1 @@
+if (1<2) {"Yes!\n"} else {"No! The end is near!\n"};
