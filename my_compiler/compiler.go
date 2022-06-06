@@ -12,6 +12,7 @@ type Compiler struct {
 	constants    []my_object.Object
 	// trackedInstructions: tracking the last and before the last instructions emitted
 	trackedInstructions [2]*EmittedInstruction
+	symbolTable         *SymbolTable
 }
 
 type ByteCode struct {
@@ -29,6 +30,16 @@ func New() *Compiler {
 		instructions:        my_code.Instructions{},
 		constants:           []my_object.Object{},
 		trackedInstructions: [2]*EmittedInstruction{nil, nil},
+		symbolTable:         NewSymbolTable(),
+	}
+}
+
+func NewWithState(constants []my_object.Object, symbolTable *SymbolTable) *Compiler {
+	return &Compiler{
+		instructions:        my_code.Instructions{},
+		constants:           constants,
+		trackedInstructions: [2]*EmittedInstruction{nil, nil},
+		symbolTable:         symbolTable,
 	}
 }
 
@@ -55,6 +66,14 @@ func (c *Compiler) Compile(node my_ast.Node) error {
 				return err
 			}
 		}
+	case *my_ast.LetStatement:
+		err := c.Compile(node.Value)
+		if err != nil {
+			return err
+		}
+		// decide what number to set to the identifier from the symbol table
+		sym := c.symbolTable.Define(node.Ident.Value)
+		c.emit(my_code.OpSetGlobal, sym.Index)
 	// expressions
 	case *my_ast.IfExpression:
 		err := c.Compile(node.Condition)
@@ -164,6 +183,12 @@ func (c *Compiler) Compile(node my_ast.Node) error {
 			my_code.OpConstant,
 			c.addConstant(&my_object.String{Value: node.Value}),
 		)
+	case *my_ast.Identifier:
+		sym, ok := c.symbolTable.Resolve(node.Value)
+		if !ok {
+			return fmt.Errorf("undefined variable: %s", node.String())
+		}
+		c.emit(my_code.OpGetGlobal, sym.Index)
 	case *my_ast.Null:
 		c.emit(my_code.OpNull)
 	}

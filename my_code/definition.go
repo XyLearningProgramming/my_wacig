@@ -29,8 +29,10 @@ var definitions = map[Opcode]*Definition{
 	// OpJumpNotTruthy: 1 operand with 2 bytes
 	OpJumpNotTruthy: {"OpJumpNotTruthy", []int{2}},
 	// OpJump: 1 operand with 2 bytes
-	OpJump: {"OpJump", []int{2}},
-	OpNull: {"OpNull", []int{}},
+	OpJump:      {"OpJump", []int{2}},
+	OpNull:      {"OpNull", []int{}},
+	OpGetGlobal: {"OpGetGlobal", []int{2}},
+	OpSetGlobal: {"OpSetGlobal", []int{2}},
 }
 
 func Lookup(op byte) (*Definition, error) {

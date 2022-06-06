@@ -9,10 +9,18 @@ import (
 	"monkey/my_vm"
 )
 
-type vmEngine struct{}
+type vmEngine struct {
+	compilerConstants   []my_object.Object
+	compilerSymbolTable *my_compiler.SymbolTable
+	vmGlobals           []my_object.Object
+}
 
 func NewVMEngine() Engine {
-	return &vmEngine{}
+	return &vmEngine{
+		compilerConstants:   make([]my_object.Object, 0),
+		compilerSymbolTable: my_compiler.NewSymbolTable(),
+		vmGlobals:           my_vm.NewGlobals(),
+	}
 }
 
 func (vme *vmEngine) Evaluate(code string) (my_object.Object, error) {
@@ -20,12 +28,12 @@ func (vme *vmEngine) Evaluate(code string) (my_object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	comp := my_compiler.New()
+	comp := my_compiler.NewWithState(vme.compilerConstants, vme.compilerSymbolTable)
 	err = comp.Compile(program)
 	if err != nil {
 		return nil, err
 	}
-	virtualMachine := my_vm.New(comp.ByteCode())
+	virtualMachine := my_vm.NewWithState(comp.ByteCode(), vme.vmGlobals)
 	err = virtualMachine.Run()
 	if err != nil {
 		return nil, err

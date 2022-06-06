@@ -276,7 +276,56 @@ func TestNullExpressions(t *testing.T) {
 			[]my_code.Instructions{
 				my_code.Make(my_code.OpNull),
 				my_code.Make(my_code.OpPop),
-			}},
+			},
+		},
+	}
+	runCompilerTests(t, tests)
+}
+
+func TestGlobalLetStatements(t *testing.T) {
+	tests := []*compilerTestCase{
+		{
+			input: `
+			let one = 1;
+			let two = 2;
+			`,
+			expectedConstants: []any{1, 2},
+			expectedInstructions: []my_code.Instructions{
+				my_code.Make(my_code.OpConstant, 0),
+				my_code.Make(my_code.OpSetGlobal, 0),
+				my_code.Make(my_code.OpConstant, 1),
+				my_code.Make(my_code.OpSetGlobal, 1),
+			},
+		},
+		{
+			input: `
+			let one = 1;
+			one;
+			`,
+			expectedConstants: []any{1},
+			expectedInstructions: []my_code.Instructions{
+				my_code.Make(my_code.OpConstant, 0),
+				my_code.Make(my_code.OpSetGlobal, 0),
+				my_code.Make(my_code.OpGetGlobal, 0),
+				my_code.Make(my_code.OpPop),
+			},
+		},
+		{
+			input: `
+			let one = 1;
+			let two = one;
+			two;
+			`,
+			expectedConstants: []any{1},
+			expectedInstructions: []my_code.Instructions{
+				my_code.Make(my_code.OpConstant, 0),
+				my_code.Make(my_code.OpSetGlobal, 0),
+				my_code.Make(my_code.OpGetGlobal, 0),
+				my_code.Make(my_code.OpSetGlobal, 1),
+				my_code.Make(my_code.OpGetGlobal, 1),
+				my_code.Make(my_code.OpPop),
+			},
+		},
 	}
 	runCompilerTests(t, tests)
 }

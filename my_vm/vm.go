@@ -2,27 +2,47 @@ package my_vm
 
 import (
 	"fmt"
+	"math"
 	"monkey/my_code"
 	"monkey/my_compiler"
 	"monkey/my_object"
 )
 
-const StackSize = 2048
+const (
+	StackSize  = 2048
+	GlobalSize = math.MaxUint16 + 1
+)
 
 type VM struct {
-	constants    []my_object.Object
-	instructions my_code.Instructions
 	stack        []my_object.Object
 	sp           int // sp: points to the next value, top of stack is stack[sp-1]
+	instructions my_code.Instructions
+	constants    []my_object.Object
+	globals      []my_object.Object
 }
 
 func New(byteCode *my_compiler.ByteCode) *VM {
 	return &VM{
-		constants:    byteCode.Constants,
-		instructions: byteCode.Instructions,
-		stack:        make([]my_object.Object, StackSize),
 		sp:           0,
+		stack:        make([]my_object.Object, StackSize),
+		instructions: byteCode.Instructions,
+		constants:    byteCode.Constants,
+		globals:      NewGlobals(),
 	}
+}
+
+func NewWithState(byteCode *my_compiler.ByteCode, globals []my_object.Object) *VM {
+	return &VM{
+		sp:           0,
+		stack:        make([]my_object.Object, StackSize),
+		instructions: byteCode.Instructions,
+		constants:    byteCode.Constants,
+		globals:      globals,
+	}
+}
+
+func NewGlobals() []my_object.Object {
+	return make([]my_object.Object, GlobalSize)
 }
 
 func (vm *VM) Run() error {
@@ -38,6 +58,18 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case my_code.OpSetGlobal:
+			globalIdx := my_code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+			vm.globals[globalIdx] = vm.pop()
+		case my_code.OpGetGlobal:
+			globalIdx := my_code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+			err := vm.push(vm.globals[globalIdx])
+			if err != nil {
+				return err
+			}
+
 		// calculations
 		case my_code.OpBang:
 			vm.executeOpBang()
