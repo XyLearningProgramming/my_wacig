@@ -52,6 +52,18 @@ func TestStringTokenWithQuotes(t *testing.T) {
 	testTokensWithInput(t, input, expects)
 }
 
+func TestNullToken(t *testing.T) {
+	input := "null;true;null"
+	expects := []*token.Token{
+		{Type: token.NULL, Literal: "null"},
+		{Type: token.SEMICOLON, Literal: ";"},
+		{Type: token.TRUE, Literal: "true"},
+		{Type: token.SEMICOLON, Literal: ";"},
+		{Type: token.NULL, Literal: "null"},
+	}
+	testTokensWithInput(t, input, expects)
+}
+
 func testTokensWithInput(t *testing.T, input string, expects []*token.Token) {
 	lexer := New(input)
 	for _, exp := range expects {

@@ -36,3 +36,7 @@ func nativeBoolToBooleanObject(nb bool) *my_object.Boolean {
 	}
 	return FALSE
 }
+
+func nullToNullObject() *my_object.Null {
+	return NULL
+}

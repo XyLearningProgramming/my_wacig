@@ -58,6 +58,8 @@ func Eval(node my_ast.Node, env *my_object.Environment) my_object.Object {
 		return evalIdentifier(node, env)
 	case *my_ast.Boolean:
 		return booleanNodeToObject(node)
+	case *my_ast.Null:
+		return nullToNullObject()
 	case *my_ast.Integer:
 		// NOTE: Risk of overflow here
 		// but, introducing an unsigned int will quickly get messy

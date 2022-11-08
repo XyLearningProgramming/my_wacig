@@ -304,3 +304,12 @@ func TestParseBreakContinueStatement(t *testing.T) {
 	}
 	testMultipleStringedStatements(t, tests)
 }
+
+func TestParseNullValue(t *testing.T) {
+	tests := []TestWithExpect{
+		{"null", "null;"},
+		{"if ((null)) { 10 } else { 20 }", "if(null){10;}else{20;};"},
+		{"if ((if (false) { 10 })) { 10 } else { 20 }", "if(if(false){10;}){10;}else{20;};"},
+	}
+	testMultipleStringedStatements(t, tests)
+}

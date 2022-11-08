@@ -1,6 +1,7 @@
 package my_vm
 
 import (
+	"fmt"
 	"monkey/my_ast"
 	"monkey/my_compiler"
 	"monkey/my_lexer"
@@ -66,6 +67,47 @@ func TestNumberStringAddArithmetic(t *testing.T) {
 	runVMTests(t, tests)
 }
 
+func TestConditionals(t *testing.T) {
+	tests := []*vmTestCase{
+		{"if (true) { 10 }", 10},
+		{"if (true) { 10 } else { 20 }", 10},
+		{"if (false) { 10 } else { 20 } ", 20},
+		{"if (1) { 10 }", 10},
+		{"if (1 < 2) { 10 }", 10},
+		{"if (1 < 2) { 10 } else { 20 }", 10},
+		{"if (1 > 2) { 10 } else { 20 }", 20},
+		{"if (1 == 2) { 10 } else { 20; 3;40; }", 40},
+		{"if (1 < 2) { 10;20 } else { 20 }", 20},
+		{"if (1 > 2) { 10 }", nil},
+		{"if (false) { 10 }", nil},
+		{"if ((if (false) { 10 })) { 10 } else { 20 }", 20},
+	}
+	runVMTests(t, tests)
+}
+
+func TestNull(t *testing.T) {
+	tests := []*vmTestCase{
+		{"null", nil},
+		{"null==null", true},
+		{"null!=null;", false},
+		{"null>null", false},
+		{"null<=null", true},
+		{"null+null", fmt.Errorf("unknown operator: NULL1NULL")},
+		{"!(if(false){5})", true},
+		{"!if(false){5}", true},
+	}
+	runVMTests(t, tests)
+}
+
+func TestGlobalLetStatements(t *testing.T) {
+	tests := []*vmTestCase{
+		{"let one = 1; one", 1},
+		{"let one = 1; let two = 2; one + two", 3},
+		{"let one = 1; let two = one + one; one + two", 3},
+	}
+	runVMTests(t, tests)
+}
+
 type vmTestCase struct {
 	input    string
 	expected any
@@ -81,9 +123,14 @@ func runVMTests(t *testing.T, tests []*vmTestCase) {
 		assert.NoError(t, err)
 		vm := New(comp.ByteCode())
 		err = vm.Run()
-		assert.NoError(t, err)
+		switch ex := tt.expected.(type) {
+		case error:
+			assert.EqualValues(t, ex.Error(), err.Error())
+		default:
+			assert.NoError(t, err)
+		}
 		stackElem := vm.LastPoppedStackItem()
-		testExpectedObject(t, tt.expected, stackElem, "input=%s", tt.input)
+		testExpectedObject(t, tt.expected, stackElem, "input=%s, bytecode=\n%s", tt.input, comp.ByteCode().Instructions)
 	}
 }
 
@@ -106,6 +153,9 @@ func testExpectedObject(t *testing.T, expected any, actual my_object.Object, msg
 		strObj, ok := actual.(*my_object.String)
 		assert.True(t, ok)
 		assert.EqualValues(t, expected, strObj.Value, msgAndArgs...)
+	case nil:
+		_, ok := actual.(*my_object.Null)
+		assert.True(t, ok, msgAndArgs...)
 	}
 }
 
